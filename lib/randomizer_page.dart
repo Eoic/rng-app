@@ -1,37 +1,40 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:provider/provider.dart';
+import 'package:random_number_generator/randomizer_change_notifier.dart';
 
-class RandomizerPage extends HookWidget {
+class RandomizerPage extends StatelessWidget {
   final randomGenerator = Random();
 
   RandomizerPage({
     Key? key,
-    required this.min,
-    required this.max
   }) : super(key: key);
-
-  final int min, max;
 
   @override
   Widget build(BuildContext context) {
-    final generatedNumber = useState<int?>(null);
-
     return Scaffold(
       appBar: AppBar(
-          title: Text("Randomizer [$min, $max]")
+          title: Consumer<RandomizerChangeNotifier>(
+            builder: (context, notifier, child) {
+              return Text("Randomizer [${notifier.min}, ${notifier.max}]",);
+            }
+          )
       ),
       body: Center(
-        child: Text(
-          generatedNumber.value?.toString() ?? 'Generate a number.',
-          style: const TextStyle(
-              fontSize: 36,
-              color: Colors.white70
-          ),
+        child: Consumer<RandomizerChangeNotifier>(
+          builder: (context, notifier, child) {
+            return Text(
+              notifier.generatedNumber?.toString() ?? 'Generate a number.',
+              style: const TextStyle(
+                  fontSize: 36,
+                  color: Colors.white70
+              ),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => generatedNumber.value = randomGenerator.nextInt(max - min + 1) + min,
+        onPressed: () => context.read<RandomizerChangeNotifier>().generateRandomNumber(),
         label: const Text('Generate'),
         foregroundColor: Colors.white70,
       ),
